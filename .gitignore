@@ -1,2 +1,12 @@
-# Ignore compiled files
+# Compiled dirs
 bin/
+build*/
+
+# Compiled files
+*/**.a
+*/**.lib
+*/**.so
+*/**.dll
+*/**.exe
+*/**.out
+
