@@ -4,33 +4,24 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 
-enum ChessPieceType {
-    PAWN,
-    HORSE,
-    BISHOP,
-    ROOK,
-    QUEEN,
-    KING,
-    PIECE_MAX
-};
+namespace Chess {
 
-// class ChessPiece {
-// private:
-//     ChessPieceType type;
-// };
-
-struct ChessConfig {
-};
-
-class ChessGame {
+/// Chess Game Class
+///
+/// - Holds the SFML window and the game instance.
+/// - Implements the game loop and event handling
+/// - Renders the game: board and pieces
+class Game {
 public:
-    ChessGame();
-    void gameLoop();
+    Game(unsigned int w, unsigned int h);
+    void run();
 private:
-    // ChessConfig config;
-    // sf::RenderWindow window;
-    // sf::Texture pieces_texture;
+    sf::RenderWindow m_window;
+    sf::ConvexShape m_cell;
 private:
     void handleEvent(sf::Event);
+    void render();
 };
+
+} // namespace Chess
 
