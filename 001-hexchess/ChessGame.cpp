@@ -13,7 +13,7 @@ const sf::Color COLORS[]   {WHITE_CELL, GREY_CELL, BLACK_CELL};
 
 constexpr char PIECES_PATH[] = "assets/pieces.png";
 
-Game::Game(unsigned int w, unsigned int h) :
+HexChess::HexChess(unsigned int w, unsigned int h) :
     m_window {sf::VideoMode(w, h), "Chess!"},
     m_cell {6}
 {
@@ -37,7 +37,7 @@ Game::Game(unsigned int w, unsigned int h) :
     m_cell.setScale(CELL_SZ, CELL_SZ);
 }
 
-void Game::run() {
+void HexChess::run() {
     sf::Event event;
     while (m_window.isOpen()) {
         while (m_window.pollEvent(event))
@@ -50,7 +50,7 @@ void Game::run() {
     }
 }
 
-void Game::handleEvent(sf::Event event) {
+void HexChess::handleEvent(sf::Event event) {
     switch (event.type) {
         case sf::Event::Closed:
             m_window.close();
@@ -60,7 +60,7 @@ void Game::handleEvent(sf::Event event) {
     }
 }
 
-void Game::render() {
+void HexChess::render() {
     // Render board
     const sf::Vector2f startPos {8.0f * CELL_SZ, 0.0f};
     // Draw center column

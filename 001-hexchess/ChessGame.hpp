@@ -6,14 +6,14 @@
 
 namespace Chess {
 
-/// Chess Game Class
+/// HexChess Game Class
 ///
 /// - Holds the SFML window and the game instance.
 /// - Implements the game loop and event handling
 /// - Renders the game: board and pieces
-class Game {
+class HexChess {
 public:
-    Game(unsigned int w, unsigned int h);
+    HexChess(unsigned int w, unsigned int h);
     void run();
 private:
     sf::RenderWindow m_window;
