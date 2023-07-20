@@ -9,7 +9,7 @@ constexpr float CELL_HEIGHT = CELL_SZ * SQRT3;
 const sf::Color WHITE_CELL {200, 200, 200};
 const sf::Color GREY_CELL  {120, 120, 120};
 const sf::Color BLACK_CELL { 30,  30,  30};
-const sf::Color COLORS[]   {BLACK_CELL, WHITE_CELL, GREY_CELL};
+const sf::Color COLORS[]   {WHITE_CELL, GREY_CELL, BLACK_CELL};
 
 constexpr char PIECES_PATH[] = "assets/pieces.png";
 
