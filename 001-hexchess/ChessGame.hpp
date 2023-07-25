@@ -6,6 +6,10 @@
 
 namespace Chess {
 
+struct Cell {
+    int file, rank;
+};
+
 /// HexChess Game Class
 ///
 /// - Holds the SFML window and the game instance.
@@ -21,6 +25,8 @@ private:
 private:
     void handleEvent(sf::Event);
     void render();
+    void renderCell(Cell);
+    Cell pixelToCell(sf::Vector2i);
 };
 
 } // namespace Chess
