@@ -9,13 +9,10 @@ const sf::Color BLACK_CELL { 30,  30,  30};
 const sf::Color COLORS[]   {BLACK_CELL, GREY_CELL, WHITE_CELL};
 
 constexpr float CELL_SZ = 30.0f;
-const sf::Vector2f START_POS {300.f, 150.f};
-
 constexpr float SQRT3 = 1.7320508075688772f;
 constexpr float CELL_HEIGHT = CELL_SZ * SQRT3;
 const sf::FloatRect BOARD {
-    START_POS.x - 8.0f * CELL_SZ,
-    START_POS.y,
+    100.0f, 100.f,
     17.0f * CELL_SZ,
     11.0f * CELL_HEIGHT
 };
@@ -48,14 +45,20 @@ HexChess::HexChess(unsigned int w, unsigned int h) :
 
 void HexChess::run() {
     sf::Event event;
-    while (m_window.isOpen()) {
-        while (m_window.pollEvent(event))
-            handleEvent(event);
+    bool needRender = true;
 
-        // TODO: Only render if event happens
-        m_window.clear();
-        render();
-        m_window.display();
+    while (m_window.isOpen()) {
+        while (m_window.pollEvent(event)) {
+            handleEvent(event);
+            needRender = true;
+        }
+
+        if (needRender) {
+            m_window.clear();
+            render();
+            m_window.display();
+            needRender = false;
+        }
     }
 }
 
@@ -63,9 +66,19 @@ void HexChess::handleEvent(sf::Event event) {
     switch (event.type) {
         case sf::Event::Closed:
             m_window.close();
-            break;
+            return;
+
+        case sf::Event::Resized:
+            // Dont strech the window contents
+            m_window.setView(sf::View(sf::FloatRect(
+                0, 0,
+                static_cast<float>(event.size.width),
+                static_cast<float>(event.size.height)
+            )));
+            return;
+
         default:
-            break;
+            return;
     }
 }
 
@@ -80,13 +93,6 @@ void HexChess::render() {
     // Highlight under cursor cell
     m_cell.setFillColor({255, 0, 0});
     renderCell(pixelToCell(sf::Mouse::getPosition(m_window)));
-
-    /*
-    sf::RectangleShape rect {{BOARD.width, BOARD.height}};
-    rect.setPosition(BOARD.left, BOARD.top);
-    rect.setFillColor({200, 0, 0, 100});
-    m_window.draw(rect);
-    */
 }
 
 void HexChess::renderCell(Cell cell) {
