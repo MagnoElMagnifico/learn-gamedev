@@ -1,5 +1,5 @@
 #include "ChessGame.hpp"
-#include <cmath>    // abs
+#include <cmath>    // abs, floor
 
 namespace Chess {
 
@@ -124,24 +124,49 @@ Cell HexChess::pixelToCell(sf::Vector2i pixel) {
     // To get the file (column), this approximates the hexagon with a rectangle
     // including the leftmost or rightmost vertex.
     //
-    //     .-------.....
-    //    /:       :\  :
-    //   / :       : \ :
-    //  /  :       :  \:
-    //  \  :       :  /:
-    //   \ :       : / :
-    //    \:       :/  :
-    //     .-------.....
+    // fileLeft         fileRight
+    //         .-------.
+    //        /:       :\    ...
+    //       / :       : \   ...
+    //      /  :       :  \  ...
+    //      \  :       :  /
+    //       \ :       : /
+    //        \:       :/
+    //         .-------.
     //
-    const int fileLeft  = static_cast<int>(normPixel.x / (1.5f*CELL_SZ));
-    const int fileRight = static_cast<int>((normPixel.x - 0.5f*CELL_SZ) / (1.5f*CELL_SZ));
+    const int fileRight = static_cast<int>(normPixel.x / (1.5f*CELL_SZ));
+    const int fileLeft  = static_cast<int>((normPixel.x - 0.5f*CELL_SZ) / (1.5f*CELL_SZ));
 
     // If both estimations have the same result, the given pixel is in the
     // rectangle inside the hexagon.
     // Otherwise, the pixel must the in the side triangles.
-    const int file = fileLeft;
-    if (fileLeft != fileRight) {
-        // TODO
+    // Note that fileLeft >= fileRight is always true.
+    int file = fileRight;
+    if (fileRight != fileLeft) {
+        // Here, the pixel is between the mentioned rectangles. The coordinates
+        // are normalized, and then decide if the pixel is above or below the
+        // diagonal.
+        // Note that even cells have a decreasing diagonal and odd cells have
+        // an increasing diagonal.
+        //
+        //           x 0 -> 1
+        //     .-------.....  0 y
+        //    /        :\  :
+        //   /fileLeft : \ :     fileRight
+        //  /          :..\:  1
+        //  \          :  /:
+        //   \         : / :
+        //    \        :/  :
+        //     .-------.....
+        //
+        const float offsetX = static_cast<float>(fileRight) * 1.5f * CELL_SZ;
+        const float offsetY = static_cast<float>(std::abs(fileLeft - 5)) * CELL_HEIGHT/2.0f;
+        const float distanceY = (normPixel.y - offsetY) / (CELL_HEIGHT/2.0f);
+        const float fracX = (normPixel.x - offsetX) / (CELL_SZ/2.0f);
+        const float fracY = distanceY - std::floor(distanceY);
+
+        bool isLeft = (static_cast<int>(distanceY) % 2 == 0)? fracX < fracY : fracX < 1 - fracY;
+        file = isLeft? fileLeft : fileRight;
     }
 
     // Since the coordinates are already translated, the middle file can be
