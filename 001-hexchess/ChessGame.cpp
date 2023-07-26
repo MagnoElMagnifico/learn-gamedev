@@ -19,6 +19,45 @@ const sf::FloatRect BOARD {
 
 constexpr char PIECES_PATH[] = "assets/pieces.png";
 
+// White Black PieceType
+// P     p     Pawn
+// N     n     Knight
+// B     b     Bishop
+// R     r     Rook
+// Q     q     Queen
+// K     k     King
+// *     *     Non-existent cell
+//
+//     .----------.
+//    |*****b*****| 11
+//    |****qbk****| 10
+//    |***n b n***|  9
+//    |**r     r**|  8
+//    |*ppppppppp*|  7
+//    |           |  6
+//    |     P     |  5
+//    |    P P    |  4
+//    |   P B P   |  3
+//    |  P  B  P  |  2
+//    | PRNQBKNRP |  1
+//    '-----------'
+//     abcdefghikl       // j is not used
+constexpr char INITIAL_POS_FEN[] =
+    "5b5/4qbk4/3n1b1n3/2r5r2/1ppppppppp1/11/5P5/4P1P43/P1B1P3/2P2B2P2/1PRNQBKNRP1 w - 0 1";
+
+// ------------------------------------------------------------
+
+GlinskiGame::GlinskiGame(const std::string&) : m_position {} {
+    // TODO: parse FEN
+}
+
+const GlinskiGame::Position& GlinskiGame::getPosition() const {
+    return m_position;
+}
+
+// ------------------------------------------------------------
+
+
 HexChess::HexChess(unsigned int w, unsigned int h) :
     m_window {sf::VideoMode(w, h), "Chess!"},
     m_cell {6}
@@ -90,8 +129,8 @@ void HexChess::render() {
             renderCell({x, y});
         }
 
-    // Highlight under cursor cell
-    m_cell.setFillColor({255, 0, 0});
+    // Highlight cell under cursor
+    m_cell.setFillColor({255, 0, 0, 100});
     renderCell(pixelToCell(sf::Mouse::getPosition(m_window)));
 }
 
