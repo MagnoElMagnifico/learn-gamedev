@@ -12,6 +12,11 @@ struct Cell {
     int file, rank;
 };
 
+[[maybe_unused]]
+static std::ostream &operator<<(std::ostream &os, Cell const &m) {
+    return os << '(' << m.file << ", " << m.rank << ')';
+}
+
 /// HexChess Game Class
 ///
 /// - Holds the SFML window and the game instance.
@@ -22,14 +27,18 @@ public:
     HexChess(unsigned int w, unsigned int h);
     void run();
 private:
+    GlinskiGame m_game;
     sf::RenderWindow m_window;
     sf::ConvexShape m_cell;
-    GlinskiGame m_game;
+    sf::Texture m_texturePiece;
+    sf::Sprite m_piece;
+    int m_textureSize; // read-only
 private:
     void handleEvent(sf::Event);
     void render();
     void renderCell(Cell);
-    Cell pixelToCell(sf::Vector2i);
+    void renderPiece(Cell, Piece);
+    Cell pixelToCell(sf::Vector2i) const;
 };
 
 } // namespace Chess

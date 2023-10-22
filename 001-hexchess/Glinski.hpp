@@ -2,6 +2,7 @@
 
 #include <array>
 #include <string>
+#include <iostream> // Debug only
 
 namespace Chess {
 
@@ -28,10 +29,9 @@ namespace Chess {
 //    | PRNQBKNRP |  1
 //    '-----------'
 //     abcdefghikl       // j is not used
-
 /// Code FEN for the canonical initial position
 constexpr std::string_view FEN_START =
-    "5b5/4qbk4/3n1b1n3/2r5r2/1ppppppppp1/11/5P5/4P1P43/P1B1P3/2P2B2P2/1PRNQBKNRP1 w - 0 1";
+    "5b5/4qbk4/3n1b1n3/2r5r2/1ppppppppp1/11/5P5/4P1P4/P1B1P3/2P2B2P2/1PRNQBKNRP1 w - 0 1";
 
 // TODO?: Optimize for space, 4 bits per piece
 enum class Piece {
@@ -53,6 +53,29 @@ enum class Piece {
     BlackQueen  = 5 + 8,
     BlackKing   = 6 + 8
 };
+
+[[maybe_unused]]
+static std::ostream &operator<<(std::ostream &os, Piece const &m) {
+    switch (m) {
+        case Piece::None: return os << ".";
+
+        case Piece::WhitePawn:   return os << "P";
+        case Piece::WhiteKnight: return os << "N";
+        case Piece::WhiteBishop: return os << "B";
+        case Piece::WhiteRook:   return os << "R";
+        case Piece::WhiteQueen:  return os << "Q";
+        case Piece::WhiteKing:   return os << "K";
+
+        case Piece::BlackPawn:   return os << "p";
+        case Piece::BlackKnight: return os << "n";
+        case Piece::BlackBishop: return os << "b";
+        case Piece::BlackRook:   return os << "r";
+        case Piece::BlackQueen:  return os << "q";
+        case Piece::BlackKing:   return os << "k";
+
+        default: return os << "Unsupported piece!";
+    }
+}
 
 /// Glinski's Chess Game Instance
 ///

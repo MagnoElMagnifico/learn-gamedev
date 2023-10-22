@@ -1,5 +1,14 @@
 #include "ChessGame.hpp"
 #include <cmath> // abs, floor
+#include <iostream>
+
+#define IS_CELL_INVALID(cell)                                                                 \
+    (                                                                                         \
+        (cell.file < 0 || cell.file > 10) || cell.rank < 0                                    \
+        || (cell.rank > 5 && (cell.file < cell.rank - 5 || cell.file > 10 - (cell.rank - 5))) \
+    )                                                                                         \
+    // Check the bondaries of the board.
+    // The last ranks have a decreasing number of files
 
 namespace Chess {
 
@@ -20,12 +29,16 @@ const sf::FloatRect BOARD {
 constexpr char PIECES_PATH[] = "assets/pieces.png";
 
 HexChess::HexChess(unsigned int w, unsigned int h) :
+    m_game {FEN_START},
     m_window {sf::VideoMode(w, h), "Chess!"},
     m_cell {6},
-    m_game {FEN_START}
+    m_texturePiece {},
+    m_piece {m_texturePiece},
+    m_textureSize {0}
 {
     m_window.setVerticalSyncEnabled(true);
 
+    // ---- Cell setup ----
     // A hexagon is built with 6 equilateral triangles.
     // Let a be the side of one triangle, then its height h is:
     //
@@ -43,16 +56,33 @@ HexChess::HexChess(unsigned int w, unsigned int h) :
 
     m_cell.setScale(CELL_SZ, CELL_SZ);
 
+    // ---- Load piece textures ----
+    if (!m_texturePiece.loadFromFile(PIECES_PATH))
+        throw "Error loading pieces assets";
+
+    m_textureSize = static_cast<int>(m_texturePiece.getSize().x) / 6;
+
+    // The first row matches to the white pieces and the second to the black pieces
+    if (static_cast<int>(m_texturePiece.getSize().y) != 2 * m_textureSize)
+        throw "Invalid texture size";
+
+    m_piece.scale(0.5, 0.5);
+    /* // Resize
+    if (static_cast<int>(CELL_SZ) != m_textureSize) {
+        // texture / f*cell = 1 => f = cell / texture
+        const float scaleFactor = CELL_SZ / static_cast<float>(textureSize);
+        m_piece.scale(scaleFactor, scaleFactor);
+    } */
+
     // Debug only
     m_game.printPosition();
 }
 
 void HexChess::run() {
-    sf::Event event;
     bool needRender = true;
 
     while (m_window.isOpen()) {
-        while (m_window.pollEvent(event)) {
+        for (sf::Event event; m_window.pollEvent(event);) {
             handleEvent(event);
             needRender = true;
         }
@@ -86,13 +116,17 @@ void HexChess::handleEvent(sf::Event event) {
     }
 }
 
+
 void HexChess::render() {
     // TODO: support for black's perspective
-    for (int x = 0; x < 11; x++)
-        for (int y = 0; y < 11; y++) {
-            m_cell.setFillColor(COLORS[((x > 5)? 10-x+y : x+y) % 3]);
-            renderCell({x, y});
+    auto position = m_game.getPosition();
+    for (int file = 0; file < 11; file++) {
+        for (int rank = 0; rank < 11; rank++) {
+            m_cell.setFillColor(COLORS[((rank > 5)? 10-rank+file : rank+file) % 3]);
+            renderCell({rank, file});
+            renderPiece({rank, file}, position[static_cast<size_t>(rank*10 + file)]);
         }
+    }
 
     // Highlight cell under cursor
     m_cell.setFillColor({255, 0, 0, 100});
@@ -100,10 +134,7 @@ void HexChess::render() {
 }
 
 void HexChess::renderCell(Cell cell) {
-    // Only render cells within the board
-    // The last ranks have a decreasing number of files
-    bool cond = cell.rank > 5 && (cell.file < cell.rank - 5 || cell.file > 10 - (cell.rank - 5));
-    if (cell.file < 0 || cell.file > 10 || cell.rank < 0 || cond)
+    if (IS_CELL_INVALID(cell))
         return;
 
     const float yOffset = static_cast<float>(std::abs(cell.file - 5)) * CELL_HEIGHT/2.0f;
@@ -114,8 +145,29 @@ void HexChess::renderCell(Cell cell) {
     m_window.draw(m_cell);
 }
 
+void HexChess::renderPiece(Cell cell, Piece piece) {
+    if (IS_CELL_INVALID(cell) || piece == Piece::None)
+        return;
 
-Cell HexChess::pixelToCell(sf::Vector2i pixel) {
+    const int pieceCode = static_cast<int>(piece);
+    sf::IntRect textureRect {
+        m_textureSize * ((pieceCode > 6)? pieceCode - 8 - 1 : pieceCode - 1),
+        (pieceCode > 6)? m_textureSize : 0,
+        m_textureSize, m_textureSize
+    };
+    m_piece.setTextureRect(textureRect);
+
+    const float yOffset = static_cast<float>(std::abs(cell.file - 5)) * CELL_HEIGHT/2.0f;
+    m_piece.setPosition({
+        static_cast<float>(cell.file) * 1.5f * CELL_SZ + CELL_SZ/2.0f + BOARD.left,
+        static_cast<float>(10 - cell.rank) * CELL_HEIGHT - yOffset + BOARD.top
+    });
+
+    m_window.draw(m_piece);
+}
+
+
+Cell HexChess::pixelToCell(sf::Vector2i pixel) const {
     if (!BOARD.contains(static_cast<float>(pixel.x), static_cast<float>(pixel.y)))
         return {-1, -1};
 
