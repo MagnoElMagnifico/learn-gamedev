@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>WebGL</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+            html, head, body {
+                margin: 0;
+                padding: 25px;
+                background-color: #2a2a2a; /* Dark mode */
+            }
+
+            canvas {
+                /* Center image */
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
+                /* See if we are missing pixels */
+                background-color: #da6052;
+                image-rendering: crisp-edges;
+            }
+
+            #error-box {
+                color: red;
+                font-weight: 500;
+                border: 1px solid white;
+                border-radius: 10px;
+                margin: 20px 20% 0 20%;
+                padding: 15px;
+            }
+
+            .error-log {
+                font-family: monospace;
+                font-weight: 700;
+                font-size: 12pt;
+                margin: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="canvas">Your browser does not support HTML5 canvas</canvas>
+
+        <!-- Programmer errors -->
+        <div id="error-box">
+        </div>
+
+        <script src="index.js"></script>
+    </body>
+</html>
